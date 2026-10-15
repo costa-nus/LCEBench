@@ -26,11 +26,16 @@ scripts/       serve_qwen.sh, run.sh (4 tasks x 5 seeds)
 
 | Method | Context | Entry point |
 |---|---|---|
-| [GEPA](https://arxiv.org/abs/2507.19457) (DSPy, `auto="heavy"`) | the instruction of the task program | `python -m gepa_dspy.run` |
+| [GEPA](https://arxiv.org/abs/2507.19457) | the instruction of the task program | `python -m gepa_dspy.run` |
 | [ACE](https://arxiv.org/abs/2510.04618) | a playbook of bullet points (generator / reflector / curator) | `python -m ace.run` |
 | [Training-Free GRPO](https://arxiv.org/abs/2510.08191) | an experience library learned from groups of rollouts | `python -m tfgrpo.run` |
 
-Benchmarks: **HotpotQA**, **IFBench**, **MATH500**, **MiddleMatch** (`--task hotpotqa|ifbench|math500|middlematch`).
+| Dataset | Task | `--task` |
+|---|---|---|
+| [HotpotQA](https://arxiv.org/abs/1809.09600) | multi-hop question answering over the given gold and distractor Wikipedia paragraphs | `hotpotqa` |
+| [IFBench](https://arxiv.org/abs/2507.02833) | instruction following under verifiable output constraints | `ifbench` |
+| [MATH500](https://huggingface.co/datasets/HuggingFaceH4/MATH-500) | competition-level math problems | `math500` |
+| [MiddleMatch](https://arxiv.org/abs/2512.14982) | synthetic: name the person between two given names in a list of 40 names | `middlematch` |
 
 
 ```bash
@@ -66,9 +71,22 @@ python -m tfgrpo.run    --task math500  --student_lm Qwen3-8B --teacher_lm Qwen3
 ```
 
 The *student* model solves the task; the *teacher* model performs the optimization (GEPA reflection LM, ACE
-reflector + curator, TF-GRPO experience updates). They can be different Qwen models on different servers:
+reflector + curator, TF-GRPO experience updates). They can be different models on different servers:
 `--student_api_base http://host:8000/v1 --teacher_api_base http://host:8001/v1`
 (`STUDENT=Qwen3-8B TEACHER=Qwen3-32B STUDENT_API_BASE=... TEACHER_API_BASE=... bash scripts/run.sh ...`).
+
+
+## Our Results
+
+Test performance (%) reported in the paper with the default settings (Qwen3-8B as both student and teacher),
+mean ± standard deviation over seeds 0–4:
+
+| Dataset | TF-GRPO | GEPA | ACE |
+|---|---|---|---|
+| HotpotQA | 38.00 ± 0.97 | 32.80 ± 0.99 | 33.67 ± 0.97 |
+| IFBench | 32.21 ± 1.58 | 33.30 ± 3.64 | 32.17 ± 1.28 |
+| MATH500 | 82.10 ± 2.43 | 80.60 ± 1.43 | 63.80 ± 2.93 |
+| MiddleMatch | 37.73 ± 8.57 | 42.33 ± 3.80 | 25.20 ± 3.96 |
 
 
 ## Outputs
@@ -82,8 +100,7 @@ reflector + curator, TF-GRPO experience updates). They can be different Qwen mod
 
 ## Failure Mode Extraction
 
-`failure_modes/` uses an LLM extractor (default `Qwen/Qwen3-8B` behind vLLM, temperature 0, thinking disabled)
-to extract one sentence describing the reusable failure mechanism of each evaluated error trajectory:
+`failure_modes/` uses an LLM extractor to extract one sentence describing the reusable failure mode of each evaluated error trajectory:
 
 ```bash
 VLLM_BASE_URL=http://localhost:8000/v1 python -m failure_modes.run \

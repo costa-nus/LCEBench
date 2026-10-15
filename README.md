@@ -163,8 +163,7 @@ python -m failure_modes.vendi --input failure_mechanisms.jsonl --gains gains.csv
 ```
 
 The output `failure_vendi.csv` has one row per setting (`method`, `model`, `dataset`, `n_failures`, `vendi_mean`,
-`vendi_std`, `gain`). The script also prints the correlation between the Vendi Score and the gain per method and
-pooled over the LCEs:
+`vendi_std`, `gain`). The script also prints the correlation between the Vendi Score and the LCE performance gains:
 
 ```
 Wrote <settings> settings to failure_vendi.csv

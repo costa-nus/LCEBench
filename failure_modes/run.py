@@ -87,7 +87,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path(__file__).with_name("example.jsonl"))
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--model", default="Qwen/Qwen3-8B")
+    parser.add_argument("--model", default="Qwen/Qwen3.8-27B")
     parser.add_argument("--max-tokens", type=int, default=4096)
     parser.add_argument("--retries", type=int, default=10)
     args = parser.parse_args()

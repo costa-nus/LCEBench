@@ -1,5 +1,8 @@
-# Python >= 3.10. Pinned versions are the ones this code was tested with.
-# The Qwen models are served separately with vLLM (scripts/serve_qwen.sh; runs used vllm 0.19.1).
+# Python >= 3.10 (tested with 3.12). Pinned versions are the ones this code was tested with.
+# NLTK data (punkt, punkt_tab, stopwords, averaged_perceptron_tagger_eng) is downloaded on first import.
+
+# Model serving (scripts/serve_qwen.sh)
+vllm==0.19.1
 
 # GEPA (DSPy; brings gepa and litellm)
 dspy==3.3.0
@@ -11,9 +14,10 @@ torch
 numpy
 tqdm
 
-# ACE bullet-point de-duplication
+# ACE bullet-point de-duplication; failure-mode Vendi Score and its correlation with gains
 sentence-transformers>=3.0
 faiss-cpu
+scipy
 
 # MATH500 scoring
 math-verify==0.9.0
@@ -21,9 +25,10 @@ sympy
 regex
 word2number
 
-# IFBench instruction checkers (also: python -m spacy download en_core_web_sm)
+# IFBench instruction checkers
 nltk>=3.9.1
 spacy>=3.8,<3.9
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 langdetect
 immutabledict
 emoji

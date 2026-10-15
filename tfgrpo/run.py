@@ -311,7 +311,8 @@ def parse_args():
     p.add_argument("--eval_limit", type=int, default=None)
     p.add_argument("--only_partial_correct", type=str2bool, default=True,
                    help="learn only from groups whose mean reward is strictly between 0 and 1")
-    p.add_argument("--eval_baseline", action="store_true", help="also evaluate the empty library on test first")
+    p.add_argument("--eval_baseline", type=str2bool, nargs="?", const=True, default=True,
+                   help="evaluate the empty library on test first (the score before optimization)")
     return p.parse_args()
 
 

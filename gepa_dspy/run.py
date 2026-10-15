@@ -3,7 +3,7 @@
     python -m gepa_dspy.run --task math500 --student_lm Qwen3-8B --teacher_lm Qwen3-8B --seed 0
 
 The student model runs the program; the teacher model is GEPA's reflection LM. The program is
-evaluated on train/val/test before and after optimisation (val is GEPA's validation set).
+evaluated on train/val/test before and after optimization (val is GEPA's validation set).
 """
 
 import argparse

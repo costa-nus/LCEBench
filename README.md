@@ -14,13 +14,14 @@ This repository provides the implementation of Revisiting LLMs as Context Engine
 ## Setup
 
 ```
-benchmarks/   datasets + scoring shared by the three methods (IFBench checkers, MATH verifier, ...)
-data/         train / val / test splits
-gepa_dspy/    run.py (optimisation loop), tasks.py (DSPy programs and feedback metrics); not named
-              "gepa" so that it does not shadow the gepa package used by DSPy
-ace/          run.py, ace.py (training loop), generator / reflector / curator, bullet de-duplication
-tfgrpo/       run.py (rollouts, validation, test), experiences.py (teacher updates), prompts.py, tasks.py
-scripts/      serve_qwen.sh, run.sh (4 tasks x 5 seeds)
+benchmarks/    datasets + scoring shared by the three methods (IFBench checkers, MATH verifier, ...)
+data/          train / val / test splits
+gepa_dspy/     run.py (optimization loop), tasks.py (DSPy programs and feedback metrics); not named
+               "gepa" so that it does not shadow the gepa package used by DSPy
+ace/           run.py, ace.py (training loop), generator / reflector / curator, bullet de-duplication
+tfgrpo/        run.py (rollouts, validation, test), experiences.py (teacher updates), prompts.py, tasks.py
+failure_modes/ run.py (extracts the failure mode of each failed trajectory), prompts.py, example.jsonl
+scripts/       serve_qwen.sh, run.sh (4 tasks x 5 seeds)
 ```
 
 | Method | Context | Entry point |
@@ -39,7 +40,7 @@ python -m nltk.downloader punkt punkt_tab stopwords averaged_perceptron_tagger_e
 ```
 
 
-## Training and Evaluation
+## Training
 
 All 4 tasks x 5 seeds (seeds run as parallel processes, logs in `logs/<method>/`):
 
@@ -64,7 +65,7 @@ python -m ace.run       --task ifbench  --student_lm Qwen3-8B --teacher_lm Qwen3
 python -m tfgrpo.run    --task math500  --student_lm Qwen3-8B --teacher_lm Qwen3-8B --seed 0
 ```
 
-The *student* model solves the task; the *teacher* model performs the optimisation (GEPA reflection LM, ACE
+The *student* model solves the task; the *teacher* model performs the optimization (GEPA reflection LM, ACE
 reflector + curator, TF-GRPO experience updates). They can be different Qwen models on different servers:
 `--student_api_base http://host:8000/v1 --teacher_api_base http://host:8001/v1`
 (`STUDENT=Qwen3-8B TEACHER=Qwen3-32B STUDENT_API_BASE=... TEACHER_API_BASE=... bash scripts/run.sh ...`).
@@ -74,9 +75,20 @@ reflector + curator, TF-GRPO experience updates). They can be different Qwen mod
 
 `outputs/<method>/<task>/T-<teacher>_S-<student>/`:
 
-- GEPA: `seed-<N>.json` (initial / final train, val, test scores and the optimised instruction)
+- GEPA: `seed-<N>.json` (initial / final train, val, test scores and the optimized instruction)
 - ACE: `seed-<N>/ace_run_<time>_<task>_offline/` (`final_results.json`, `best_playbook.txt`, `intermediate_playbooks/`, LLM call logs)
 - TF-GRPO: `seed-<N>/` (`summary.json`, `best_experiences.json`, per-epoch rollouts, summaries, critiques, updates, validation scores)
+
+
+## Failure Mode Extraction
+
+`failure_modes/` uses an LLM extractor (default `Qwen/Qwen3-8B` behind vLLM, temperature 0, thinking disabled)
+to extract one sentence describing the reusable failure mechanism of each evaluated error trajectory:
+
+```bash
+VLLM_BASE_URL=http://localhost:8000/v1 python -m failure_modes.run \
+    --input failure_modes/example.jsonl --output failure_mechanisms.jsonl
+```
 
 ## License
 

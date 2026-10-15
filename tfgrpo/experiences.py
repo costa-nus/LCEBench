@@ -1,6 +1,6 @@
 """Teacher side of Training-Free GRPO: update the experience library once per epoch.
 
-1. summarise every rollout of the groups whose mean reward is strictly between 0 and 1,
+1. summarize every rollout of the groups whose mean reward is strictly between 0 and 1,
 2. critique each group and propose add / modify operations,
 3. merge all proposals into the library with one batch-update call.
 """

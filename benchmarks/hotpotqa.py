@@ -1,5 +1,5 @@
 """HotpotQA helpers: answers are wrapped in <answer> ... </answer> and scored by exact match
-after SQuAD-style normalisation. The gold and distractor paragraphs are given in the context."""
+after SQuAD-style normalization. The gold and distractor paragraphs are given in the context."""
 
 import re
 import string

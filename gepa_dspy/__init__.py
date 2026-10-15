@@ -1,1 +1,1 @@
-"""GEPA prompt optimisation (DSPy) with Qwen models served by vLLM."""
+"""GEPA prompt optimization (DSPy) with Qwen models served by vLLM."""

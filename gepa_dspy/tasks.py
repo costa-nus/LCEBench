@@ -1,7 +1,7 @@
-"""Task definitions for GEPA: examples, the DSPy program to optimise, and the (feedback) metrics.
+"""Task definitions for GEPA: examples, the DSPy program to optimize, and the (feedback) metrics.
 
 Signature fields, descriptions and initial instructions, the program classes and their predictor
-attribute names are those of the paper runs; GEPA optimises the instructions of the single
+attribute names are those of the paper runs; GEPA optimizes the instructions of the single
 predictor of each program.
 """
 

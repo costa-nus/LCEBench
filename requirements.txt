@@ -1,0 +1,31 @@
+# Python >= 3.10. Pinned versions are the ones this code was tested with.
+# The Qwen models are served separately with vLLM (scripts/serve_qwen.sh; runs used vllm 0.19.1).
+
+# GEPA (DSPy; brings gepa and litellm)
+dspy==3.3.0
+openai>=1.40
+
+# tokenizer-based prompt budgeting, seeding, TF-GRPO data loader
+transformers>=4.51
+torch
+numpy
+tqdm
+
+# ACE bullet-point de-duplication
+sentence-transformers>=3.0
+faiss-cpu
+
+# MATH500 scoring
+math-verify==0.9.0
+sympy
+regex
+word2number
+
+# IFBench instruction checkers (also: python -m spacy download en_core_web_sm)
+nltk>=3.9.1
+spacy>=3.8,<3.9
+langdetect
+immutabledict
+emoji
+syllapy
+packaging

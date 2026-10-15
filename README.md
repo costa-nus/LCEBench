@@ -166,11 +166,11 @@ The output `failure_vendi.csv` has one row per setting (`method`, `model`, `data
 `vendi_std`, `gain`). The script also prints the correlation between the Vendi Score and the LCE performance gains:
 
 ```
-Wrote <settings> settings to failure_vendi.csv
-ACE: n=<settings> r=<r> p=<p>
-GEPA: n=<settings> r=<r> p=<p>
-TFGRPO: n=<settings> r=<r> p=<p>
-LCEs: n=<settings> r=<r> p=<p>
+Wrote 45 settings to failure_vendi.csv
+ACE: n=15 r=-0.372 p=0.0860
+GEPA: n=15 r=-0.556 p=0.0158
+TFGRPO: n=15 r=-0.512 p=0.0256
+LCEs: n=45 r=-0.464 p=0.0007
 ```
 
 The `LCEs` line corresponds to Figure 5: a negative r (r = −0.5, p ≤ 0.05 in the paper) means that the LCEs gain

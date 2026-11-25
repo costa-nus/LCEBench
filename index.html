@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="When can large language models learn reusable context from offline trial data?">
+  <meta property="og:title" content="Revisiting LLMs as Context Engineers">
+  <meta property="og:description" content="A benchmark of automatic context engineering across five tasks and three model families.">
+  <meta property="og:type" content="website">
+  <title>Revisiting LLMs as Context Engineers</title>
+  <link rel="icon" href="static/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+</head>
+<body>
+  <nav class="section-nav" aria-label="Page sections">
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#benchmark">Benchmark</a></li>
+      <li><a href="#scaling">Scaling</a></li>
+      <li><a href="#when-how">When &amp; How</a></li>
+      <li><a href="#bibtex">BibTeX</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero publication">
+    <div class="hero-body">
+      <div class="container is-max-desktop has-text-centered">
+        <h1 class="title publication-title">Revisiting LLMs as Context Engineers</h1>
+        <p class="publication-authors">
+          <span class="author-block"><a href="https://alniyatrui.github.io/">Junrui Zhang</a><sup>1</sup>,</span>
+          <span class="author-block">Zeyu Xu<sup>2</sup>,</span>
+          <span class="author-block"><a href="https://zrc007.github.io/">Runchuan Zhu</a><sup>1</sup>,</span>
+          <span class="author-block">Jie Peng<sup>2</sup>,</span>
+          <span class="author-block">Long Zhang<sup>2</sup>,</span>
+          <span class="author-block">Zixin Ding<sup>3</sup>,</span>
+          <span class="author-block">Jiaxin Lin<sup>4</sup>,</span>
+          <span class="author-block"><a href="https://kaiwang960112.github.io/">Kai Wang</a><sup>1</sup>,</span>
+          <span class="author-block">Jianmin Ji<sup>2</sup>,</span>
+          <span class="author-block"><a href="https://jyhong.gitlab.io/">Junyuan Hong</a><sup>1</sup></span>
+        </p>
+        <p class="publication-affiliations">
+          <span><sup>1</sup> National University of Singapore</span>
+          <span><sup>2</sup> University of Science and Technology of China</span>
+          <span><sup>3</sup> University of Chicago</span>
+          <span><sup>4</sup> Independent Researcher</span>
+        </p>
+        <div class="publication-links">
+          <a class="button is-dark is-rounded" href="https://arxiv.org/abs/2611.30494">
+            <span class="icon" aria-hidden="true"><img src="static/images/file-pdf.svg" alt=""></span>
+            <span>Paper</span>
+          </a>
+          <a class="button is-dark is-rounded" href="https://github.com/costa-nus/LCEBench">
+            <span class="icon" aria-hidden="true"><img src="static/images/github.svg" alt=""></span>
+            <span>Code</span>
+          </a>
+        </div>
+        <figure class="paper-figure hero-figure">
+          <a href="static/images/overview.webp">
+            <img src="static/images/overview.webp" width="2200" height="817"
+              alt="Study overview showing the benchmark comparison, scaling experiments, failure-mode analysis, and case studies.">
+          </a>
+          <figcaption>
+            Overview of our work. We investigate whether LCEs can engineer effective context
+            and further examine the mechanisms underlying their successes and failures.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </header>
+
+  <main class="container is-max-desktop">
+    <section class="section research-section" id="overview" aria-labelledby="overview-title">
+      <h2 class="title is-3" id="overview-title">Overview</h2>
+      <p>
+        As large language models (LLMs) are used in more and more new tasks, context engineering becomes a fundamental
+        method to efficiently steer LLMs by constructing instruction prompts or metadata without intensive training.
+        A growing number of LLM context engineering (LCE) approaches automate the task by casting the LLM itself as the
+        engineer that draws generalizable instructions or experiences from offline trials as context. Although these
+        methods resemble how humans learn from experiences, it remains unclear <strong>when and how</strong> LLMs can engineer effective
+        context from data. To answer the question, we first establish a benchmark composed of datasets with different
+        reasoning patterns. We then examine when LCEs are effective and what drives their successes and failures.
+      </p>
+      <div class="overview-findings">
+        <ul class="findings">
+          <li><strong>LLMs can</strong> engineer contexts via task-specific training, but no single method can achieve
+            the best performance in all datasets at test time.</li>
+          <li><strong>Scaling</strong> helps but cannot reverse existing failures of LCEs. Even scaling to newer
+            generations and more parameters remains insufficient to make LCEs more effective across different settings.</li>
+          <li><strong>When &amp; How:</strong> Through aggregate analysis, we find that LCEs work better when facing less diverse
+            failure modes of reasoning. Case studies show that the ability to abstract principled contexts from heterogeneous
+            failures is the major bottleneck and that the success of some LCE methods is attributed to the improvement in
+            adherence to (format) instruction rather than reasoning.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section research-section" id="benchmark" aria-labelledby="benchmark-title">
+      <h2 class="title is-3" id="benchmark-title">Benchmark of LCEs</h2>
+      <p class="benchmark-intro">
+        <strong>No free lunch for LCEs at test time.</strong> We compare the representative LCEs across various
+        tasks, from math reasoning to agentic tasks, using three LLM families, with Chain-of-Thought (CoT)
+        Prompting and In-Context Learning (ICL) included as reference baselines.
+      </p>
+      <div class="table-scroll" role="region" tabindex="0" aria-labelledby="benchmark-title">
+        <table class="table paper-table results-table" id="results-table" aria-describedby="result-note">
+          <colgroup span="2"></colgroup>
+          <colgroup span="2"></colgroup>
+          <colgroup span="3"></colgroup>
+          <colgroup></colgroup>
+          <thead>
+            <tr>
+              <th scope="col">Model</th>
+              <th scope="col">Dataset</th>
+              <th scope="col">CoT</th>
+              <th scope="col">ICL</th>
+              <th scope="col">TF-GRPO</th>
+              <th scope="col">GEPA</th>
+              <th scope="col">ACE</th>
+              <th scope="col">Δ<sub>best</sub></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="rowgroup" rowspan="5">Qwen3</th>
+              <th scope="row">MiddleMatch</th>
+              <td>31.27 ± 2.10</td>
+              <td><strong>46.07 ± 4.80</strong></td>
+              <td>37.73 ± 8.57 <small>(+6.47)</small></td>
+              <td>42.33 ± 3.80 <small>(+12.53)</small></td>
+              <td>25.20 ± 3.96 <small>(+4.73)</small></td>
+              <td>−3.74</td>
+            </tr>
+            <tr>
+              <th scope="row">IFBench</th>
+              <td>32.35 ± 0.82</td>
+              <td>30.54 ± 0.94</td>
+              <td>32.21 ± 1.58 <small>(−0.14)</small></td>
+              <td><strong>33.30 ± 3.64</strong> <small>(−0.37)</small></td>
+              <td>32.17 ± 1.28 <small>(+0.64)</small></td>
+              <td>+0.95</td>
+            </tr>
+            <tr>
+              <th scope="row">MATH500</th>
+              <td><strong>83.20 ± 2.51</strong></td>
+              <td>79.80 ± 1.04</td>
+              <td>82.10 ± 2.43 <small>(−1.10)</small></td>
+              <td>80.60 ± 1.43 <small>(−0.20)</small></td>
+              <td>63.80 ± 2.93 <small>(−7.30)</small></td>
+              <td>−1.10</td>
+            </tr>
+            <tr>
+              <th scope="row">HotpotQA</th>
+              <td><strong>38.00 ± 0.75</strong></td>
+              <td>37.60 ± 0.83</td>
+              <td><strong>38.00 ± 0.97</strong> <small>(0.00)</small></td>
+              <td>32.80 ± 0.99 <small>(−1.54)</small></td>
+              <td>33.67 ± 0.97 <small>(−3.26)</small></td>
+              <td>0.00</td>
+            </tr>
+            <tr>
+              <th scope="row">AppWorld</th>
+              <td>21.55 ± 1.95</td>
+              <td>23.10 ± 3.89</td>
+              <td><strong>23.69 ± 2.08</strong> <small>(+2.14)</small></td>
+              <td>23.33 ± 1.54 <small>(+0.48)</small></td>
+              <td>18.93 ± 1.29 <small>(−3.45)</small></td>
+              <td>+0.59</td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th scope="rowgroup" rowspan="5">Gemma4</th>
+              <th scope="row">MiddleMatch</th>
+              <td>79.33 ± 1.93</td>
+              <td>80.47 ± 2.32</td>
+              <td>90.13 ± 3.43 <small>(+10.80)</small></td>
+              <td><strong>93.33 ± 2.91</strong> <small>(+7.40)</small></td>
+              <td>87.47 ± 6.16 <small>(+0.73)</small></td>
+              <td class="significant">+12.86<sup>*</sup></td>
+            </tr>
+            <tr>
+              <th scope="row">IFBench</th>
+              <td>39.76 ± 2.22</td>
+              <td>34.63 ± 2.17</td>
+              <td>41.63 ± 1.21 <small>(+1.87)</small></td>
+              <td><strong>46.70 ± 4.54</strong> <small>(−1.22)</small></td>
+              <td>42.09 ± 1.43 <small>(+1.13)</small></td>
+              <td class="significant">+6.94<sup>*</sup></td>
+            </tr>
+            <tr>
+              <th scope="row">MATH500</th>
+              <td>67.70 ± 1.04</td>
+              <td><strong>77.90 ± 3.54</strong></td>
+              <td>73.80 ± 4.12 <small>(+6.10)</small></td>
+              <td>71.20 ± 1.92 <small>(+3.50)</small></td>
+              <td>69.40 ± 1.14 <small>(+1.60)</small></td>
+              <td>−4.10</td>
+            </tr>
+            <tr>
+              <th scope="row">HotpotQA</th>
+              <td><strong>33.80 ± 0.80</strong></td>
+              <td>32.60 ± 3.27</td>
+              <td>33.67 ± 1.29 <small>(−0.13)</small></td>
+              <td>29.47 ± 1.45 <small>(+0.73)</small></td>
+              <td>31.67 ± 0.78 <small>(−0.20)</small></td>
+              <td>−0.13</td>
+            </tr>
+            <tr>
+              <th scope="row">AppWorld</th>
+              <td>25.24 ± 2.25</td>
+              <td>26.67 ± 2.50</td>
+              <td><strong>29.05 ± 3.13</strong> <small>(+3.81)</small></td>
+              <td>28.81 ± 0.68 <small>(+1.67)</small></td>
+              <td>26.07 ± 4.40 <small>(−0.36)</small></td>
+              <td>+2.38</td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th scope="rowgroup" rowspan="5">Min3</th>
+              <th scope="row">MiddleMatch</th>
+              <td>62.00 ± 3.44</td>
+              <td>49.53 ± 3.91</td>
+              <td><strong>71.40 ± 6.46</strong> <small>(+9.40)</small></td>
+              <td>59.60 ± 4.64 <small>(+22.20)</small></td>
+              <td>38.93 ± 8.69 <small>(−1.07)</small></td>
+              <td class="significant">+9.40<sup>*</sup></td>
+            </tr>
+            <tr>
+              <th scope="row">IFBench</th>
+              <td>28.50 ± 2.19</td>
+              <td>26.46 ± 1.87</td>
+              <td>28.57 ± 1.88 <small>(+0.07)</small></td>
+              <td><strong>36.70 ± 1.84</strong> <small>(+0.82)</small></td>
+              <td>31.21 ± 1.90 <small>(+0.27)</small></td>
+              <td class="significant">+8.20<sup>*</sup></td>
+            </tr>
+            <tr>
+              <th scope="row">MATH500</th>
+              <td>87.50 ± 1.06</td>
+              <td>68.10 ± 2.41</td>
+              <td><strong>88.30 ± 1.15</strong> <small>(+0.80)</small></td>
+              <td>85.10 ± 1.43 <small>(−1.30)</small></td>
+              <td>80.10 ± 3.90 <small>(−3.00)</small></td>
+              <td>+0.80</td>
+            </tr>
+            <tr>
+              <th scope="row">HotpotQA</th>
+              <td>23.07 ± 1.26</td>
+              <td>27.07 ± 0.95</td>
+              <td>24.13 ± 1.91 <small>(+1.07)</small></td>
+              <td>31.00 ± 1.60 <small>(+2.80)</small></td>
+              <td><strong>31.27 ± 1.38</strong> <small>(+3.13)</small></td>
+              <td class="significant">+4.20<sup>*</sup></td>
+            </tr>
+            <tr>
+              <th scope="row">AppWorld</th>
+              <td>26.43 ± 1.96</td>
+              <td>28.45 ± 2.12</td>
+              <td>27.14 ± 2.75 <small>(+0.71)</small></td>
+              <td>24.29 ± 7.52 <small>(−1.90)</small></td>
+              <td><strong>30.60 ± 1.08</strong> <small>(+4.40)</small></td>
+              <td>+2.15</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note" id="result-note">
+        Performance of LCEs across LLM families. No method consistently improves the context.
+      </p>
+      <ul class="findings benchmark-findings">
+        <li>
+          <strong>LCEs provide limited advantages over simple baselines.</strong>
+          We observe that only 5 settings show significant improvements, and even among these settings,
+          some gains stem from the initial context design rather than from engineering a better context during training.
+        </li>
+        <li>
+          <strong>No clear winner among LCEs across datasets or models.</strong>
+          The limitation suggests that there is no free lunch for LCEs &ndash; different models/datasets may need
+          different LCE algorithms.
+        </li>
+      </ul>
+    </section>
+
+    <section class="section research-section" id="scaling" aria-labelledby="scaling-title">
+      <h2 class="title is-3" id="scaling-title">LCEs with Scaling</h2>
+      <p>
+        After testing LCE methods with 8B-scale models, we further investigate whether scaling up models can
+        improve the effectiveness of LCEs.
+      </p>
+      <figure class="paper-figure" id="reflector-generator-scaling">
+        <a href="static/images/reflector-generator-scaling.webp">
+          <img src="static/images/reflector-generator-scaling.webp" width="2200" height="856" loading="lazy"
+            alt="Heatmaps comparing context engineering with 8B and 32B reflectors and generators on four tasks.">
+        </a>
+        <figcaption>
+          Scaling the reflector cannot rescue failures but further enhances existing improvements.
+        </figcaption>
+      </figure>
+      <ul class="findings scaling-finding">
+        <li>
+          <strong>Bigger Reflector Can Cause More Gain but Also More Loss.</strong>
+          We observe that although larger LLMs engineer more effective context in most settings on IFBench and
+          MiddleMatch, they can even perform worse than smaller models on MATH500 and HotpotQA.
+        </li>
+      </ul>
+      <figure class="paper-figure" id="model-scaling">
+        <a href="static/images/model-scaling.webp">
+          <img src="static/images/model-scaling.webp" width="2200" height="815" loading="lazy"
+            alt="Line charts comparing task performance as Qwen parameter counts and model generations increase.">
+        </a>
+        <figcaption>
+          <strong>Top:</strong> Parameter-size scaling of self-reflection.
+          <strong>Bottom:</strong> Comparison of different model generations.
+        </figcaption>
+      </figure>
+      <ul class="findings scaling-finding">
+        <li>
+          <strong>Bigger/Newer Models Do Not Necessarily Enable LCE Better Than Smaller/Older Ones.</strong>
+          Larger and newer models generally improve baseline performance, with no consistent trend in LCE effectiveness
+          across model sizes or generations.
+        </li>
+      </ul>
+    </section>
+
+    <section class="section research-section" id="failure-modes" aria-labelledby="when-how">
+      <h2 class="title is-3" id="when-how">When &amp; How</h2>
+      <p>
+        The study measures failure-mode diversity by embedding diagnoses of failed reasoning
+        trajectories and computing their Vendi Score. Greater diversity is associated with smaller
+        gains across model and dataset settings (<i>r</i> = −0.5, <i>p</i> ≤ 0.05).
+      </p>
+      <figure class="paper-figure failure-figure">
+        <div class="failure-plots">
+          <a href="static/images/failure-mode-correlation.webp">
+            <img src="static/images/failure-mode-correlation.webp" width="1960" height="1315" loading="lazy"
+              alt="Scatter plot showing a negative relationship between failure-mode Vendi Score and performance gains.">
+          </a>
+          <a href="static/images/experience-diversity.webp">
+            <img src="static/images/experience-diversity.webp" width="633" height="1315" loading="lazy"
+              alt="The Vendi Score of ACE and TF-GRPO experiences changes little across training epochs.">
+          </a>
+        </div>
+        <figcaption>
+          <strong>Left:</strong> The significant negative correlation indicates that LCEs tend to achieve
+          larger performance gains when failure modes are less diverse.
+          <strong>Right:</strong> The small changes imply that LCEs struggle to distill experiences into shared principles.
+        </figcaption>
+      </figure>
+
+      <ul class="findings failure-findings">
+        <li>
+          <strong>Less Diverse Failure Modes, Better The LCEs Work.</strong>
+          The left figure clearly shows the negative correlation between diversity and performance gains across all LCE
+          methods. The correlation is statistically significant for GEPA and TF-GRPO.
+        </li>
+        <li>
+          In contrast, the ICL gains turn out to be irrelevant to the diversity. That means
+          <strong>the relation hinges on the LLM operations</strong>, for example, reflection on failures,
+          which are missing from ICL.
+        </li>
+        <li>
+          The right figure shows that the Vendi Score of experiences changes little across iterations.
+          That means <strong>the LLMs are not able to reduce the diversity of experiences by iteratively
+          optimizing context</strong>, which explains why LCEs do not perform well on highly diverse tasks.
+        </li>
+      </ul>
+
+      <p class="case-intro">
+        <strong>Case Study: LCEs improve adherence to the task instructions.</strong> In multiple samples, we
+        notice that the experiences extracted in LCEs are related to the output format or instruction details,
+        less relevant to problem solution ideas.
+      </p>
+      <div class="case-studies">
+        <article class="case-study" aria-label="HotpotQA case study with Min3">
+          <figure class="paper-figure case-figure">
+            <a href="static/images/hotpotqa-case.webp">
+              <img src="static/images/hotpotqa-case.webp" width="1801" height="1345" loading="lazy"
+                alt="The Min3 example asks which band had more members. The answer becomes simply Beady Eye after context engineering. The plots show accuracy and false failure rates.">
+            </a>
+            <figcaption>
+              LCE behavior on HotpotQA. <strong>Top:</strong> Example of a verbose prediction
+              from Min3 leading to failure. <strong>Bottom:</strong> LCEs reduce the false failure rate
+              in Ministral alongside performance gains.
+            </figcaption>
+          </figure>
+        </article>
+        <article class="case-study" aria-label="MATH500 case study with Gemma4">
+          <figure class="paper-figure case-figure">
+            <a href="static/images/math500-case.webp">
+              <img src="static/images/math500-case.webp" width="1801" height="1345" loading="lazy"
+                alt="Gemma4 gives the answer 2k+2 before and after context engineering and uses the required boxed format afterward. The plots show accuracy and format compliance.">
+            </a>
+            <figcaption>
+              LCE behavior on MATH500. <strong>Top:</strong> Example of a format failure
+              from Gemma4. <strong>Bottom:</strong> LCEs improve compliance with the required format
+              in Gemma4 while improving performance.
+            </figcaption>
+          </figure>
+        </article>
+      </div>
+
+      <p class="ablation-intro" id="tfgrpo-ablation">
+        <strong><u>Case Study: TF-GRPO.</u></strong> To further investigate method-level failures, we conduct an
+        additional ablation study with TF-GRPO, which has clearly separated workflow stages and achieves
+        the best performance in more settings in the benchmark table across LCEs.
+      </p>
+      <div class="table-scroll" role="region" tabindex="0" aria-label="TF-GRPO ablation results">
+        <table class="table paper-table ablation-table" aria-describedby="ablation-note">
+          <colgroup span="5"></colgroup>
+          <colgroup span="2"></colgroup>
+          <colgroup span="2"></colgroup>
+          <thead>
+            <tr>
+              <th scope="col" rowspan="2">Method</th>
+              <th scope="col" rowspan="2">R</th>
+              <th scope="col" rowspan="2">E</th>
+              <th scope="col" rowspan="2">ϕ</th>
+              <th scope="col" rowspan="2"><i>k</i></th>
+              <th scope="col">MiddleMatch<sup>Q</sup></th>
+              <th scope="col">MATH500<sup>G</sup></th>
+              <th scope="col">MATH500<sup>M</sup></th>
+              <th scope="col">IFBench<sup>G</sup></th>
+            </tr>
+            <tr class="ablation-regimes">
+              <th scope="colgroup" colspan="2">ICL &gt; LCE &gt; CoT</th>
+              <th scope="colgroup" colspan="2">LCE ≥ CoT &gt; ICL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">CoT</th>
+              <td></td><td></td><td></td><td>0</td>
+              <td>31.27 ± 2.10</td><td>67.70 ± 1.04</td><td><u>87.50</u> ± 1.06</td><td>39.76 ± 2.22</td>
+            </tr>
+            <tr>
+              <th scope="row">ICL</th>
+              <td>✓</td><td></td><td></td><td>3</td>
+              <td><strong>46.07</strong> ± 4.80</td><td><strong>77.90</strong> ± 3.54</td><td>68.10 ± 2.41</td><td>34.63 ± 2.17</td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th scope="row">GRPO-ICL RAG</th>
+              <td>✓</td><td></td><td></td><td>3</td>
+              <td><u>44.00</u> ± 3.46</td><td><u>74.10</u> ± 2.25</td><td>26.50 ± 4.23</td><td>37.41 ± 1.44</td>
+            </tr>
+            <tr>
+              <th scope="row">All-Exps Random</th>
+              <td>✓</td><td>✓</td><td></td><td>3</td>
+              <td>32.00 ± 6.00</td><td>69.70 ± 0.91</td><td>87.40 ± 0.55</td><td><u>40.92</u> ± 2.07</td>
+            </tr>
+            <tr>
+              <th scope="row">Final-Exps</th>
+              <td>✓</td><td>✓</td><td>✓</td><td>var.</td>
+              <td>37.73 ± 8.57</td><td>73.80 ± 4.12</td><td><strong>88.30</strong> ± 1.15</td><td><strong>41.63</strong> ± 1.21</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note" id="ablation-note">
+        Performance under different experience utilization and retrieval settings.
+      </p>
+      <p class="ablation-finding">
+        <strong>Experience extraction (E) plays the most critical role.</strong>
+        Across all four cases, either catastrophic performance loss (left two columns) or gain (right two columns)
+        starts from the All-Exps Random, where Experience Extraction was first introduced to the ablation.
+        That means when LLMs did not extract useful experiences from rollouts, the performance will not be improved
+        over simply ICL of rollouts. Instead, when useful experiences are extracted (i.e., gains via <strong>E</strong>),
+        the shorter experiences improve performance.
+      </p>
+    </section>
+
+    <section class="section research-section bibtex-section" id="citation" aria-labelledby="bibtex">
+      <h2 class="title is-3 has-text-centered" id="bibtex">BibTeX</h2>
+      <p>
+        We would be delighted if you find our research helpful. Feel free to email
+        <a href="mailto:zhangjunrui@u.nus.edu">zhangjunrui@u.nus.edu</a> to discuss any insights or questions!
+      </p>
+      <pre tabindex="0" aria-label="BibTeX citation"><code>@article{zhang2026revisiting,
+  title   = {Revisiting LLMs as Context Engineers},
+  author  = {Zhang, Junrui and Xu, Zeyu and Zhu, Runchuan and Peng, Jie
+             and Zhang, Long and Ding, Zixin and Lin, Jiaxin and Wang, Kai
+             and Ji, Jianmin and Hong, Junyuan},
+  journal = {arXiv preprint arXiv:2611.30494},
+  year    = {2026}
+}</code></pre>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container is-max-desktop">
+      <p>
+        This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template">Academic Project Page Template</a>
+        and <a href="https://boyiwei.com/alignment-attribution/">alignment-attribution</a> project.
+      </p>
+      <p>
+        This website is licensed under a
+        <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

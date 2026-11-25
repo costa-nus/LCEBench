@@ -181,9 +181,10 @@ more when the failure modes are less diverse.
 ```bibtex
 @article{zhang2026revisiting,
   title   = {Revisiting LLMs as Context Engineers},
-  author  = {Zhang, Junrui and Xu, Zeyu and Zhu, Runchuan and Peng, Jie and Zhang, Long and Ding, Zixin and
-             Lin, Jiaxin and Wang, Kai and Ji, Jianmin and Hong, Junyuan},
-  journal = {arXiv preprint},
+  author  = {Zhang, Junrui and Xu, Zeyu and Zhu, Runchuan and Peng, Jie
+             and Zhang, Long and Ding, Zixin and Lin, Jiaxin and Wang, Kai
+             and Ji, Jianmin and Hong, Junyuan},
+  journal = {arXiv preprint arXiv:2611.30494},
   year    = {2026}
 }
 ```
